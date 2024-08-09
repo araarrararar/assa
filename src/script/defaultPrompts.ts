@@ -1,0 +1,71 @@
+export const defaultPrompts = [
+    {
+        type: 'operational',
+        category: 'platform',
+        promptText: 'Which of my orders are close to their ex-factory date?',
+    },
+    {
+        type: 'operational',
+        category: 'platform',
+        promptText: 'Which shipments are nearing their destination port?',
+    },
+    {
+        type: 'operational',
+        category: 'platform',
+        promptText: 'Facilis magni quia sint ut. Debitis facere ut vel nulla aut. Impedit distinctio sed est?',
+    },
+    {
+        type: 'operational',
+        category: 'platform',
+        promptText: 'Sequi vitae ut labore nobis aliquid earum. Quia repellat maiores asperiores saepe?',
+    },
+    {
+        type: 'intelligence',
+        category: 'risks',
+        promptText: 'Are any of my orders affected by any disruptions?',
+    },
+    {
+        type: 'intelligence',
+        category: 'risks',
+        promptText: 'Are there any ports with high congestion time that would delay any of my shipments? If so, which shipments?',
+    },
+    {
+        type: 'intelligence',
+        category: 'risks',
+        promptText: 'Quisquam omnis voluptas libero. Iusto nam aut quasi dolores qui magni eaque?',
+    },
+    {
+        type: 'intelligence',
+        category: 'risks',
+        promptText: 'Hic cupiditate libero quaerat reprehenderit quia. Voluptatem error possimus consequatur?',
+    },
+];
+
+export const defaultSuggestions = [
+    { suggestion: 'Which of my orders are ready to be shipped?' },
+    { suggestion: 'Which of my orders in transit do not have shipping documents?' },
+    { suggestion: 'Which of my shipped orders have missing documents?' },
+    { suggestion: 'Which documents am I waiting for?' },
+    { suggestion: 'Which documents are pending from suppliers?' },
+    { suggestion: 'What documents do I need to chase?' },
+    { suggestion: 'Which of my orders are at risk?' },
+    { suggestion: 'Which orders could be delayed?' },
+    { suggestion: 'Which of my orders can be impacted by geopolitical issues?' },
+    { suggestion: 'Which of my suppliers could be impacted by ESG issues?' },
+    { suggestion: 'Which countries in my supplier base have elections this year?' },
+    { suggestion: 'What do I need to do today?' },
+    { suggestion: 'Which of my orders need attention?' },
+    { suggestion: 'Which of my orders have been rejected by the supplier?' },
+    { suggestion: 'Which suppliers do I need to chase?' },
+    { suggestion: 'Which of my orders are near the factory date?' },
+    { suggestion: 'Which of my orders are near the ship-by date?' },
+    { suggestion: 'What do I have coming in today?' },
+    { suggestion: 'Which materials are coming in next week?' },
+    { suggestion: 'What’s the status of my orders from my suppliers?' },
+    { suggestion: 'What orders do I have coming next week?' },
+    { suggestion: 'What shipments do I have coming next week?' },
+    { suggestion: 'What containers do I have coming next wek?' },
+    { suggestion: 'What POs are in X shipment?' },
+    { suggestion: 'Which of my shipments are delayed?' },
+    { suggestion: 'What’s the status of my shipments?' },
+];

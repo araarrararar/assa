@@ -1,0 +1,10 @@
+{
+    "listening": "Listening on",
+    "message": "Copilot Middleware",
+    "invalidRequest": "Invalid Request",
+    "criticalPrefix": "critical:",
+    "logPrefix": "log:",
+    "errorPrefix": "error:",
+    "warningPrefix": "warnPrefix:",
+    "routeNotFound": "Route not found"
+}
