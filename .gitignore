@@ -1,0 +1,10 @@
+node_modules
+.env
+.env.prod
+.env.dev
+dev/secrets.yaml
+uat/secrets.yaml
+preprod/secrets.yaml
+prod/secrets.yaml
+uat/.env
+dev/.env

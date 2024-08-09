@@ -1,0 +1,36 @@
+services:
+  copilot-middleware:
+    container_name: copilot-middleware-service
+    env_file: .env
+    # environment:
+    #   - HEAP=1536
+    #   - SEMI_SPACE=64
+    #   - KEEP_ALIVE_TIMEOUT=65000
+    #   - PORT=3001
+    #   - STAGE=local
+    #   - REDIS__HOST=127.0.0.1
+    #   - REDIS__PORT=6379
+    #   - REDIS__DATABASE=0
+    #   - REDIS__PROTOCOL=redis
+    #   - REDIS__USERNAME=admin
+    #   - REDIS__PASSWORD=password
+    #   - REDIS__CACHE_EXPIRY=86400
+    #   - KEYCLOAK__REALM=my-realm
+    #   - KEYCLOAK__BASE_URL=http://localhost:8080
+    #   - KEYCLOAK__CLIENT_ID=client-id
+    #   - KEYCLOAK__USERNAME=user
+    #   - KEYCLOAK__PASSWORD=password
+    #   - KEYCLOAK__CLIENT_SECRET=SZYpc0f0CmNrl54fs0jTUQbphkFzX8tQ
+    #   - MONGO_URI=mongodb://127.0.0.1:27017/copilot
+    #   - LOG_LEVEL=info
+    #   - DEFAULT_USER_EMAIL=test.kavida@gmail.com
+    #   - DEFAULT_USER_CLIENT_ID=62612d25f0ae8fc4280f6890
+    #   - LLM_URL=http://chatux.kavida.ai:8008
+      # - LLM_SERVICE=http://localhost:3002
+    # extra_hosts:
+    #   - host.docker.internal:host-gateway
+    # image: copilot-middleware:latest
+    build:
+     context: .
+    ports:
+      - '3000:3000'

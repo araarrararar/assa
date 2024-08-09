@@ -1,0 +1,143 @@
+{
+    "name": "copilot-middleware",
+    "version": "1.0.0",
+    "description": "Copilot Middleware Service",
+    "private": true,
+    "scripts": {
+        "sonar": "node sonar-project.js",
+        "build": "rm -rf dist && tsc",
+        "start": "nodemon src/server.ts --exec ts-node src/server.ts",
+        "serve": "node dist/server.js",
+        "pretest": "rm -rf dist",
+        "test": "exit 0;",
+        "lint": "tslint -c tslint.json 'src/**/*.ts'",
+        "create-data": "npx ts-node src/script/createPrompt.ts"
+    },
+    "jest": {
+        "testTimeout": 3000000,
+        "collectCoverage": true,
+        "coverageReporters": [
+            "json",
+            "html",
+            "lcov"
+        ],
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js",
+            "jsx",
+            "json",
+            "node"
+        ],
+        "setupFiles": [
+            "<rootDir>/src/setupTestEnv.ts"
+        ],
+        "collectCoverageFrom": [
+            "**/*.ts"
+        ],
+        "preset": "ts-jest",
+        "transform": {
+            "^.+\\.tsx?$": [
+                "ts-jest",
+                {
+                    "babel": false,
+                    "tsConfig": "tsconfig.json"
+                }
+            ]
+        },
+        "testEnvironment": "node",
+        "coveragePathIgnorePatterns": [
+            "/node_modules/",
+            "src/models/",
+            "src/migrations/",
+            "src/routes/",
+            "src/server.ts",
+            "src/config/",
+            "src/utils/GradingTypes.ts",
+            "src/baseModels/"
+        ],
+        "coverageThreshold": {
+            "global": {
+                "branches": 80,
+                "functions": 80,
+                "lines": 80,
+                "statements": 80
+            }
+        },
+        "testResultsProcessor": "jest-sonar-reporter"
+    },
+    "jestSonar": {
+        "reportPath": "coverage",
+        "reportFile": "test-reporter.xml",
+        "indent": 4
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "resolutions": {
+        "tslib": "1.11.2"
+    },
+    "dependencies": {
+        "@aws-sdk/client-dynamodb": "3.360.0",
+        "@aws-sdk/types": "3.329.0",
+        "@aws-sdk/util-dynamodb": "3.365.0",
+        "@hapi/joi": "17.1.1",
+        "@types/dotenv": "8.2.0",
+        "@types/express": "4.17.17",
+        "@types/lodash": "4.14.149",
+        "@types/node": "16.18.0",
+        "@types/supertest": "2.0.8",
+        "@types/url-join": "4.0.1",
+        "@types/uuid": "8.3.4",
+        "aws-sdk": "^2.1622.0",
+        "axios": "0.24.0",
+        "compression": "1.7.4",
+        "cors": "2.8.5",
+        "dompurify": "^3.0.6",
+        "dotenv": "8.2.0",
+        "express": "4.18.2",
+        "express-fileupload": "1.4.0",
+        "express-session": "^1.17.3",
+        "helmet": "3.22.0",
+        "https": "1.0.0",
+        "jest-sonar-reporter": "2.0.0",
+        "keycloak-backend": "^5.0.0",
+        "mongoose": "^6.3.0",
+        "morgan": "1.10.0",
+        "newrelic": "11.1.0",
+        "openid-client": "^5.6.1",
+        "passport": "^0.7.0",
+        "prom-client": "14.2.0",
+        "redis": "^4.1.0",
+        "swagger-ui-express": "4.6.3",
+        "ts-node": "8.6.2",
+        "typescript": "4.3.5",
+        "url-join": "4.0.1",
+        "util": "^0.12.5",
+        "winston": "3.9.0"
+    },
+    "devDependencies": {
+        "@types/jest": "29.5.5",
+        "@types/newrelic": "9.13.0",
+        "aws-sdk-client-mock": "2.2.0",
+        "aws-sdk-client-mock-jest": "2.2.0",
+        "jest": "29.7.0",
+        "jest-mock-extended": "2.0.6",
+        "nodemon": "3.0.1",
+        "pre-commit": "1.2.2",
+        "pre-push": "0.1.4",
+        "sonarqube-scanner": "3.1.0",
+        "supertest": "4.0.2",
+        "ts-jest": "29.1.1",
+        "tslint": "6.1.3",
+        "tslint-config-airbnb": "5.11.2"
+    },
+    "pre-push": [
+        "lint",
+        "test"
+    ],
+    "pre-commit": [
+        "lint",
+        "test"
+    ]
+}
