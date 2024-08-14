@@ -10,13 +10,16 @@ import { ResponseStatus } from "../../utils/ResponseStatus";
 import { UserPromptModel } from "../../models/Thread";
 import { constants } from "../../utils/Constants";
 import 'dotenv/config';
+import { server as WebSocketServerType } from 'websocket';
+import { testModel } from "../../models/testModel";
+
 
 
 const CHANNEL_NAME_TO_PUBLISH_SSE_MESSAGES = "sse-messages";
 const CHANNEL_NAME_TO_PUBLISH_SOCKET_MESSAGES = "socket-messages";
 let redisClientToPublishMessages;
 let redisClientToSubscribeChannel;
-const tableRegex = /<<TABULAR DATA>>\s+(\S+)/g;
+// const tableRegex = /<<TABULAR DATA>>\s+(\S+)/g;
 
 const maxRegenerationAttempts = constants.maxRegenerationAttempts;
 
@@ -271,7 +274,7 @@ const storeLLMResponse = async (promptId, responseText, tableKeys) => {
   }
 };
 
-const getLLMStream = (
+const getLLMStream = async (
   promptId,
   promptText,
   sid,
@@ -281,128 +284,66 @@ const getLLMStream = (
   access_level = "admin",
   user_id
 ) => {
-  log(
-    "getLLMStream",
-    "request for LLM response generation initiated",
-    JSON.stringify({
-      promptId,
-      promptText,
-      sid,
-      conversationType,
-      chatHistory,
-      clientId,
-      access_level,
-      user_id,
-    })
-  );
+  return new Promise(async (resolve, reject) => {
+    let llmResponses = '';
+    try {
+      const url = process.env.GEMINI_URL;
+      const documents = await testModel.find({});
+      const dataString = JSON.stringify(documents, null, 2);
+      const combinedPrompt = `${promptText}\n\nHere is the relevant data:\n${dataString};`;
+      const data = {
+        "contents": [
+          {
+            "parts": [
+              {
+                "text": combinedPrompt
+              }
+            ]
+          }
+        ]
+      };
 
-  const url =
-    conversationType === "intelligence"
-      ? `${process.env.LLM_URL}/risk-copilot/stream`
-      : `${process.env.LLM_URL}/operational-copilot/stream`;
+      const response = await axios.post(url, data, { responseType: 'stream' });
 
-  
-  const payloadForUserLevelResponse = {
-    input: {
-      chat_history: chatHistory || [],
-      question: promptText,
-      client_id: clientId,
-      user_id: user_id,
-      access_level: access_level,
-      requester: process.env.REQUESTER_ENVIRONMENT
-
-    },
-    config: {},
-    kwargs: {},
-  };
-  
-  log("getLLMStream", "payload to be sent for user level response", JSON.stringify(payloadForUserLevelResponse));
-
-
-  let llmResponses = "";
-  const tableKeys = [];
-  
-  axios
-    .post(
-      url,
-      payloadForUserLevelResponse,
-      {
-        responseType: "stream"
-      }
-    )
-    .then(async (response) => {
-      log(
-        url,
-        "response received from LLM",
-        JSON.stringify({
-          chatHistory,
-          promptText,
-          clientId,
-          user_id,
-          access_level,
-        })
-      );
-      for (const [socketId, socket] of userStreams) {
-        if (socket.llmSessionId === sid) {
-          userStreams.set(socketId, { ...socket, llmStream: response.data });
-          break;
-        }
-      }
-      response.data.on("data", (chunk) => {
-        const chunkData = chunk.toString("utf8");
-        const extractedString = extractResponse(chunkData);
-        llmResponses += extractedString;
-        const tableKey = getTableKeys(extractedString);
-        if (tableKey) {
-          tableKeys.push(tableKey);
-        }
-        
-        publishMessageToConnectedClients(chunkData, { userId: sid });
+      response.data.on('data', chunk => {
+        const chunkData = chunk.toString('utf8');
+        llmResponses += chunkData;
+        // console.log(chunkData);
       });
-      response.data.on("end", async () => {
-        for (const [_, socket] of userStreams) {
-          if (socket.llmSessionId === sid) {
-            publishMessageToConnectedClients("{}", {
-              userId: sid,
-              isStreamEnd: true,
-            });
-            log("getLLMStream", "Stream ended and sent successfully", "");
-            await storeLLMResponse(promptId, llmResponses, tableKeys);
-            break;
+
+      response.data.on('end', () => {
+        console.log('Stream ended.');
+        const delay = 100; // Time delay in milliseconds
+
+        let index = 0;
+
+        function printNextChar() {
+          if (index < llmResponses.length) {
+            process.stdout.write(llmResponses[index]); 
+            index++;
+            setTimeout(printNextChar, delay); 
+          } else {
+            console.log(); 
           }
         }
+
+        printNextChar();
+
+        resolve({ llmResponses });
       });
-      response.data.on("error", (error) => {
-        publishMessageToConnectedClients("{}", {
-          userId: sid,
-          isError: true,
-          isStreamEnd: true,
-        });
-        console.error("Error streaming data:", error);
+
+      response.data.on('error', (error) => {
+        console.error('Error streaming data:', error);
+        reject({ error });
       });
-    })
-    .catch(async (error) => {
-      publishMessageToConnectedClients("{}", {
-        userId: sid,
-        isError: true,
-        isStreamEnd: true,
-      });
-      console.error("Error streaming data:", error);
-    });
+
+    } catch (error) {
+      console.error('Error occurred:', error);
+      reject({ error });
+    }
+  });
 };
 
-const extractResponse = (chunkData) => {
-  let extractedString = "";
-  const regex = /event: data\r\ndata: "(.+?)"\r\n\r\n/;
-  const match = chunkData.match(regex);
-
-  if (match && match[1]) {
-    extractedString = match[1];
-  } else {
-    extractedString = "";
-  }
-  return extractedString;
-};
 
 const generateLLMTitle = async (promptText) => {
   try {
@@ -429,14 +370,14 @@ const generateLLMTitle = async (promptText) => {
   }
 };
 
-const getTableKeys = (inputString) => {
-  const match = inputString.match(tableRegex);
-  if (match) {
-    const key = match[1];
-    return key;
-  }
-  return "";
-};
+// const getTableKeys = (inputString) => {
+//   const match = inputString.match(tableRegex);
+//   if (match) {
+//     const key = match[1];
+//     return key;
+//   }
+//   return "";
+// };
 
 const endResponseStream = async (userSid, prompt, response, retry) => {
   let found = false;
@@ -476,6 +417,72 @@ const endResponseStream = async (userSid, prompt, response, retry) => {
   }
 };
 
+const llmResponse = async (server) => {
+  const ws = new WebSocketServerType({
+    httpServer: server
+  });
+
+  ws.on('request', function (request) {
+    var connection = request.accept(null, request.origin);
+    connection.on('message', async function (message) {
+      if (message.type === 'utf8') {
+        console.log('Received Message: ' + message.utf8Data);
+        const prompt = message.utf8Data;
+
+        try {
+          const response = await testModel.find({});
+
+          const dataString = JSON.stringify(response, null, 2);
+
+          // Combine the user's question with the data from MongoDB
+          const combinedPrompt = `${prompt}\n\nHere is the relevant data:\n${dataString};`;
+
+          // Prepare the content to send to the Gemini API
+          const data = {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": combinedPrompt
+                  }
+                ]
+              }
+            ]
+          };
+
+          if (!response || !prompt) {
+            connection.sendUTF("fetch error");
+          } else {
+            console.log("Documents fetched");
+
+            // Analyze the question using Gemini API
+            const res = await axios.post(process.env.GEMINI_URL, data, { responseType: 'stream' });
+
+            let llmResponses = "";
+            res.data.on('data', chunk => {
+              const chunkData = chunk.toString('utf8');
+              llmResponses += chunkData;
+              console.log(llmResponses);
+              connection.sendUTF(llmResponses);
+            });
+          }
+
+        } catch (error) {
+          connection.sendUTF(error.toString());
+        }
+      } else if (message.type === 'binary') {
+        console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
+        connection.sendBytes(message.binaryData);
+      }
+    });
+
+    connection.on('close', function (reasonCode, description) {
+      console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+    });
+  });
+};
+
+
 
 
 export {
@@ -489,4 +496,6 @@ export {
   generateLLMTitle,
   endResponseStream,
   storeLLMResponse,
+  llmResponse
 };
+

@@ -21,7 +21,7 @@ morgan.token('hostname', () => {
 morgan.token('pid', () => {
     return process.pid.toString();
 });
-
+//Json format for our given log
 const jsonFormat = (tokens: any, req: express.Request, res: express.Response) => {
     return JSON.stringify({
         'remote-address': tokens['remote-addr'](req, res),

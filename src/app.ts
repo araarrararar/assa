@@ -10,6 +10,7 @@ import HealthRouter from './routes/HealthRouter';
 import cors from 'cors';
 import { loggingMiddleware } from './middleware/loggingMiddleware';
 
+
 class App {
     public app: Application;
     public routePrv: Routes;

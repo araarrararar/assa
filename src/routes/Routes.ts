@@ -17,7 +17,7 @@ class Routes {
         // const prefix = process.env.ROUTE_PREFIX || '';
 
         app.route('/')
-            .get((_request: Request, response: Response) => {
+            .get(this.socketController.LLMresponse,(_request: Request, response: Response) => {
                 response.status(200).send({ message, success: true });
             });
 
@@ -32,13 +32,16 @@ class Routes {
 
         app.route('/send-message-to-user/:userId')
             .get(this.socketController.sendMessageToUser);
-        app.route('/send-message-to-server').post(this.socketController.sendMessageToServer)
+     //   app.route('/send-message-to-server').post(this.socketController.sendMessageToServer)
 
         app.route('/fetch/prompts')
             .get(this.threadController.fetchAllDefaultPrompts);
-
+        // right code
+        // app.route('/fetch/response/stream')
+        //     .post(authenticate, this.socketController.streamLLMResponse);
+        
         app.route('/fetch/response/stream')
-            .post(authenticate, this.socketController.streamLLMResponse);
+            .post(this.socketController.LLMresponse);
 
         app.route('/update/thread')
             .post(authenticate, this.threadController.updateThreadData);
